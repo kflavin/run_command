@@ -1,0 +1,5 @@
+* 0.2.0, May 7th, 2014
+- Added the --timeout argument
+
+* 0.1.0, April 15th, 2014
+

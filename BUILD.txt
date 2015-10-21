@@ -1,0 +1,32 @@
+
+###################
+# Building
+###################
+Increment version number in run_command/__init__.py
+
+Python egg:
+------------
+To build python egg, run: python setup.py bdist
+
+RPM
+------------
+bdst_rpm doesn't seem to build the RPM properly with requirements.  As a
+workaround, you can do this.
+
+First, run: python setup.py bdist_rpm
+Note that the package under dist/ *doesn't* work
+
+Go to the SPEC file: build/bdist.linux-x86_64/rpm/SPECS/run_command.spec
+
+Add the following lines:
+
+Requires: python-setuptools
+Requires: python-pip
+Requires: python-argparse
+
+Then from build/bdist.linux-x86_64/rpm, run the following (be sure the _topdir
+property is set, or rpmbuild won't know where to look):
+rpmbuild -ba --define "_topdir /root/automation/run_command/build/bdist.linux-x86_64/rpm" SPECS/run_command.spec
+
+The RPM should build, and you should be able to find it under:
+/root/automation/run_command/build/bdist.linux-x86_64/rpm/RPMS/noarch

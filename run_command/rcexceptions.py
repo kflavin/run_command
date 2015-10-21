@@ -1,0 +1,3 @@
+class SSHKeyNotLoaded(Exception):
+        pass
+
