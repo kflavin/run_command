@@ -10,6 +10,7 @@ parser.add_argument('--timeout', default=5, type=int, help='Set timeout.  Defaul
 parser.add_argument('-g', dest="greppable", action='store_true', help='greppable output')
 parser.add_argument('-r', dest="raw", action='store_true', help='raw output')
 parser.add_argument('-u', dest="user", help='run as a user other than the active one')
+parser.add_argument('-p', dest="password", action="store_true", help='specify a fallback password')
 
 try:
 	args = parser.parse_args()

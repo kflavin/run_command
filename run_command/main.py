@@ -1,19 +1,38 @@
 #import subprocess
 import multiprocessing
 import sys
+import os
 import time
 import getpass
 import textwrap
 import argparse
+import tempfile
+import atexit
 from .ssh import worker
 from .args import args
 from .rcexceptions import SSHKeyNotLoaded
 
 debug = 1
 
+def clean_file(filename):
+    """Cleanup pass file on exit."""
+    os.unlink(filename)
+
 def main():
 
 	user = args.user or getpass.getuser()
+        if args.password:
+            user_password = getpass.getpass()
+            pass_file = tempfile.NamedTemporaryFile(delete=False)
+            atexit.register(clean_file, pass_file.name)
+            pass_file.write("echo %s" % user_password)
+            os.chmod(pass_file.name, 0500)
+            os.environ['DISPLAY'] = "dummy"
+            os.environ['SSH_ASKPASS'] = pass_file.name
+            pass_file.close()
+        else:
+            user_password = None
+
 	debug = args.debug
 
 	#try:
@@ -39,9 +58,13 @@ def main():
 	pool = multiprocessing.Pool(processes=100)
 
 	results = []
+        worker_args = [user, command, args.raw,]
+        if user_password:
+            worker_args += [user_password,]
+
 	for host in hosts.strip().split("\n"):
-		curr = host.split()[0]
-		results.append(pool.apply_async(worker, (curr, user, command, args.raw)))
+		worker_args.insert(0, host.split()[0])
+		results.append(pool.apply_async(worker, worker_args))
 		#print result.get(timeout=5)
 
 	# if you uncomment these, it will cause the main process to block
@@ -75,9 +98,6 @@ def main():
 			pass
 
 
-	#for result in results:
-		#print result.get(timeout=5)
-	
 ##############################################
 # Main Processing
 ##############################################

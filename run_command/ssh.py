@@ -1,10 +1,28 @@
 import sys
+import os
 import subprocess
 import re
+import shlex
 from .rcexceptions import SSHKeyNotLoaded
 
-def worker(host, user, command, raw=False, debug=0):
-        output = subprocess.Popen(["/usr/bin/ssh", "-o", "NumberOfPasswordPrompts=0", "-o", "ConnectTimeout=2", "-o", "StrictHostKeyChecking=no", "%s@%s" % (user, host), "--", command], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+def worker(host, user, command, raw=False, password=None, debug=0):
+
+        if password:
+            passwordprompts = 1
+        else:
+            passwordprompts = 0
+
+        ssh_command = "setsid /usr/bin/ssh"
+        ssh_command += " -o numberofpasswordprompts=%s" % passwordprompts 
+        ssh_command += " -o connecttimeout=2 -o stricthostkeychecking=no" 
+        ssh_command += " %s@%s" % (user,host,)
+        ssh_command += " -- "
+        ssh_command += command
+        print ssh_command
+        ssh_command = shlex.split(ssh_command)
+
+        #output = subprocess.Popen(["setsid", "/usr/bin/ssh", "-o", "numberofpasswordprompts=%s" % passwordprompts, "-o", "connecttimeout=2", "-o", "stricthostkeychecking=no", "%s@%s" % (user, host), "--", command], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+        output = subprocess.Popen(ssh_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 
 	if re.match("^Permission denied", output[1]):
 		raise SSHKeyNotLoaded("SSH Key not loaded through agent.")
