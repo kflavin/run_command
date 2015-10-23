@@ -63,8 +63,7 @@ def main():
             worker_args += [user_password,]
 
 	for host in hosts.strip().split("\n"):
-		worker_args.insert(0, host.split()[0])
-		results.append(pool.apply_async(worker, worker_args))
+		results.append(pool.apply_async(worker, [host.split()[0]] + worker_args))
 		#print result.get(timeout=5)
 
 	# if you uncomment these, it will cause the main process to block

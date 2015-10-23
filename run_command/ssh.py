@@ -18,7 +18,7 @@ def worker(host, user, command, raw=False, password=None, debug=0):
         ssh_command += " %s@%s" % (user,host,)
         ssh_command += " -- "
         ssh_command += command
-        print ssh_command
+        #print ssh_command
         ssh_command = shlex.split(ssh_command)
 
         #output = subprocess.Popen(["setsid", "/usr/bin/ssh", "-o", "numberofpasswordprompts=%s" % passwordprompts, "-o", "connecttimeout=2", "-o", "stricthostkeychecking=no", "%s@%s" % (user, host), "--", command], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
